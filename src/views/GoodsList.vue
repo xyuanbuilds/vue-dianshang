@@ -31,11 +31,11 @@
                 <ul>
                   <li v-for="(item,index) of goodsList">
                     <div class="pic">
-                      <a href="#"><img v-lazy="'static/' + item.productImg" alt=""></a>
+                      <a href="#"><img v-lazy="'/static/' + item.productImage" alt=""></a>
                     </div>
                     <div class="main">
-                      <div class="name">{{item.productName}} - {{index}}</div>
-                      <div class="price">{{item.productPrice}}</div>
+                      <div class="name">{{item.productId}} - {{index}}</div>
+                      <div class="price">{{item.salePrice}}</div>
                       <div class="btn-area">
                         <a href="javascript:;" class="btn btn--m">加入购物车</a>
                       </div>
@@ -93,15 +93,14 @@ export default {
   methods: {
     getGoodsList () {
       axios.get("/goods").then((result)=>{
-        var res = result.data
-        this.goodsList = res.result
+        let res = result.data
+        this.goodsList = res.result.list
       })
     },
     showFilterPop () {
       this.filterBy = true
       this.overLayFlag = true
     },
-
     setPriceFilter (index) {
       this.priceCheck = index
       this.closePop()
