@@ -23,10 +23,13 @@
             <div class="filter stopPop" id="filter" :class="{'filterby-show': filterBy}" >
               <dl class="filter-price">
                 <dt>Price:</dt>
-                <dd><a href="javascript:void(0)" :class="{'cur': priceCheck == 'all'}" @click="priceCheck = 'all'">All</a></dd>
+                <dd @click="setPriceFilter(10)">
+                  <a href="javascript:void(0)" :class="{'cur': priceCheck == 10}">All</a>
+                </dd>
                 <!-- 这里很实用通过index来实现菜单的切换 -->
                 <dd v-for="(price,index) in priceFilter" @click="priceCheck = index">
-                  <a href="javascript:void(0)" @click="setPriceFilter(index)" :class="{'cur': priceCheck == index}">{{price.startPrice}} - {{price.endPrice}}</a>
+                  <a href="javascript:void(0)" @click="setPriceFilter(index)"
+                  :class="{'cur': priceCheck == index}">{{price.startPrice}} - {{price.endPrice}}</a>
                 </dd>
               </dl>
             </div>
@@ -40,16 +43,16 @@
                       <a href="#"><img v-lazy="'/static/' + item.productImage" alt=""></a>
                     </div>
                     <div class="main">
-                      <div class="name">{{item.productId}} - {{index}}</div>
+                      <div class="name">{{item.productName}} - {{index}}</div>
                       <div class="price">{{item.salePrice}}</div>
                       <div class="btn-area">
-                        <a href="javascript:;" class="btn btn--m">加入购物车</a>
+                        <a href="javascript:;" class="btn btn--m" @click="addCart(item.productId)">加入购物车</a>
                       </div>
                     </div>
                   </li>
                 </ul>
-                <div class="load-more" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="30">
-                  ...
+                <div class="load-more" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="0">
+                  <img v-show="loading" src="./../assets/loading-spinning-bubbles.svg" alt="">
                 </div>
               </div>
             </div>
@@ -86,13 +89,14 @@ export default {
           endPrice: '2000.00'
         },
       ],
-      priceCheck: 'all', //过滤器选项
+      priceCheck: 10, //过滤器选项
       filterBy: false, //控制小屏幕的侧边窗口是否弹出
       overLayFlag: false,  //控制小屏幕时黑幕是否出现
       sortFlag: true,
       page: 1, //所在页数
       pageSize: 8, //每页显示多少个
-      busy: true
+      busy: true, //是否还有数据要加载
+      loading: false //是否正在加载
     }
   },
   components: {
@@ -110,8 +114,10 @@ export default {
       var param = {
         page: this.page,
         pageSize: this.pageSize,
-        sort: this.sortFlag?1:-1 //如果是true给1（升序），不是给-1（降序）
+        sort: this.sortFlag?1:-1, //如果是true给1（升序），不是给-1（降序）
+        priceLevel: this.priceCheck
       }
+      this.loading = true;
       axios.get("/goods",{
         params: param //传入到后端的参数集
       }).then((result)=>{
@@ -134,11 +140,14 @@ export default {
         } else {
           this.goodsList = [];
         }
+        this.loading = false;
       })
     },
-    // 设置小屏幕的价格区间选中
+    // 设置价格区间选中
     setPriceFilter (index) {
-      this.priceCheck = index
+      this.priceCheck = index;
+      this.page = 1;
+      this.getGoodsList()
       this.closePop()
     },
     // 显示黑幕
@@ -157,12 +166,25 @@ export default {
       this.page = 1;
       this.getGoodsList();
     },
+    // 分页加载
     loadMore () {
       this.busy = true;
       setTimeout(() => {
         this.page++;
         this.getGoodsList(true);
       }, 300);
+    },
+    // 添加到购物车
+    addCart (productId) {
+      axios.post ("/goods/addCart", {
+        productId: productId
+      }).then((res)=>{
+        if (res.data.status == "0") {
+          alert("success");
+        } else {
+          alert("fail: " + res.data.status);
+        }
+      })
     }
   }
 }
