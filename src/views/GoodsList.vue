@@ -118,7 +118,7 @@ export default {
         priceLevel: this.priceCheck
       }
       this.loading = true;
-      axios.get("/goods",{
+      axios.get("/goods/list",{
         params: param //传入到后端的参数集
       }).then((result)=>{
         let res = result.data

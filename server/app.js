@@ -29,7 +29,29 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/goods', goods);
 
+// 拦截操作，拦截不登陆前的非法操作
+app.use(function (req,res,next) {
+  // 有userId说明登录了，所以可以继续
+  if (req.cookies.userId) {
+    next ();
+  } else {
+    // 地址白名单
+    // req.path是的不带参数的请求地址，在前端相当于是location.pathname
+    // req.originalUrl是带参数的请求地址，在前端相当于是location.href
+    if (req.originalUrl == '/users/login' || req.originalUrl == '/users/logout' || req.path == '/goods/list') {
+      next();
+    } else {
+      res.json ({
+        starus: '10001',
+        msg: '当前未登录',
+        result: ''
+      })
+    }
+  }
+})
+
 // catch 404 and forward to error handler
+// 捕获404
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;

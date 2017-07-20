@@ -150,3 +150,40 @@ a {
   visibility: visible;
   height: auto;
 }
+.md-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 535px;
+    height: auto;
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    visibility: hidden;
+    z-index: 10;
+}
+.md-modal-transition .md-modal-inner {
+    background: #fff;
+    -webkit-transform: translateY(20%);
+    transform: translateY(20%);
+    opacity: 0;
+    transition: all .3s ease-out;
+}
+.md-modal .md-modal-inner {
+    padding: 60px 50px;
+}
+.md-modal-transition.md-show {
+    visibility: visible;
+}
+.md-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,.5);
+    z-index: 9;
+}
+.md-content .error-wrap .error-show {
+    visibility: visible;
+    height: auto;
+}
