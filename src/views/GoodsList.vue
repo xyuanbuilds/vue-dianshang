@@ -182,7 +182,7 @@ export default {
         if (res.data.status == "0") {
           alert("success");
         } else {
-          alert("fail: " + res.data.status);
+          alert("fail: " + res.data.msg);
         }
       })
     }

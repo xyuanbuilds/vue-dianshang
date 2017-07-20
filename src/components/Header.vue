@@ -72,7 +72,7 @@
         userPwd:'',
         errorTip: false,
         loginModalFlag: false,
-        nickName: false
+        nickName: ''
       }
     },
     methods: {
@@ -102,7 +102,19 @@
             this.nickName = ''
           }
         })
+      },
+      // 刷新是保存登录信息
+      checkLogin () {
+        axios.get("/users/checkLogin").then((response)=>{
+          let res = response.data;
+          if (res.status == '0') {
+            this.nickName = res.result
+          }
+        })
       }
+    },
+    mounted () {
+      this.checkLogin()
     }
   }
 </script>
