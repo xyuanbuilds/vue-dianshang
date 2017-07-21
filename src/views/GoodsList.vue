@@ -10,10 +10,16 @@
             <span class="sortby">Sort by:</span>
             <a href="javascript:void(0)" class="default cur">Default</a>
             <!-- 点击设置升序降序 -->
-            <a @click="sortGoods" href="javascript:void(0)" class="price">
+            <a @click="sortGoods" href="javascript:void(0)" class="price" :class="{'sort-up': !sortFlag}">
               Price
               <svg class="icon icon-arrow-short">
-                <use xlink:href="#icon-arrow-short"></use>
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-arrow-short">
+                  <svg id="icon-arrow-short" viewBox="0 0 25 32" width="100%" height="100%">
+                    <title>arrow-short</title>
+                    <path d="M24.487 18.922l-1.948-1.948-8.904 8.904v-25.878h-2.783v25.878l-8.904-8.904-1.948 1.948 12.243 12.243z" class="path1">
+                    </path>
+                  </svg>
+                </use>
               </svg>
             </a>
             <a href="javascript:void(0)" class="filterby stopPop" @click="showFilterPop">Filter by</a>
@@ -60,6 +66,27 @@
         </div>
       </div>
       <div class="md-overlay" v-show="overLayFlag" @click="closePop"></div>
+      <!-- 绑定的mdShow是传入的props值，等于的mdShow是父组件的data里的值 -->
+      <!-- 这里的checkMd是对子组件的事件监听，一旦监听到，就启动mdStatus方法 -->
+      <modal :mdget="mdShow" @checkMd="mdStatus">
+        <p slot="message">请登录，不然无法加入购物车</p>
+        <div slot="btn-group">
+          <a href="#" class="btn btn--m" @click="mdShow = false">关闭</a>
+        </div>
+      </modal>
+      <modal :mdget="mdShowCart" @checkMd="mdStatus">
+        <p slot="message">
+          <svg class="icon-status-ok" viewBox="0 0 32 32" width="100%" height="100%">
+            <title>status-ok</title>
+            <path d="M22.361 10.903l-9.71 9.063-2.998-2.998c-0.208-0.209-0.546-0.209-0.754 0s-0.208 0.546 0 0.754l3.363 3.363c0.104 0.104 0.241 0.156 0.377 0.156 0.131 0 0.261-0.048 0.364-0.143l10.087-9.414c0.215-0.201 0.227-0.539 0.026-0.754s-0.539-0.226-0.754-0.026z" class="path1"></path> <path d="M16 30.933c-8.234 0-14.933-6.699-14.933-14.933s6.699-14.933 14.933-14.933c8.234 0 14.933 6.699 14.933 14.933s-6.699 14.933-14.933 14.933zM16 0c-8.822 0-16 7.178-16 16 0 8.823 7.178 16 16 16s16-7.177 16-16c0-8.822-7.178-16-16-16z" class="path2"></path>
+          </svg>
+          <span>加入购物车成功</span>
+        </p>
+        <div slot="btn-group">
+          <a href="#" class="btn btn--m" @click="mdShowCart = false">继续购物</a>
+          <router-link href="#" class="btn btn--m" to="/cart">查看购物车</router-link>
+        </div>
+      </modal>
       <nav-footer></nav-footer>
   </div>
 </template>
@@ -68,6 +95,7 @@
 import NavHeader from '@/components/Header.vue'
 import NavFooter from '@/components/Footer.vue'
 import NavBread from '@/components/NavBread.vue'
+import Modal from '@/components/Modal.vue'
 import axios from 'axios'
 
 export default {
@@ -92,17 +120,20 @@ export default {
       priceCheck: 10, //过滤器选项
       filterBy: false, //控制小屏幕的侧边窗口是否弹出
       overLayFlag: false,  //控制小屏幕时黑幕是否出现
-      sortFlag: true,
+      sortFlag: true, //控制传出的sort值，true为1（升序），false为-1（降序）
       page: 1, //所在页数
       pageSize: 8, //每页显示多少个
       busy: true, //是否还有数据要加载
-      loading: false //是否正在加载
+      loading: false, //是否正在加载
+      mdShow: false, //模态框是否弹出，用于传入props的值
+      mdShowCart: false //控制添加成功的模态框的是否弹出
     }
   },
   components: {
     NavHeader,
     NavFooter,
-    NavBread
+    NavBread,
+    Modal
   },
   mounted: function () {
     this.getGoodsList ();
@@ -180,11 +211,15 @@ export default {
         productId: productId
       }).then((res)=>{
         if (res.data.status == "0") {
-          alert("success");
+          this.mdShowCart = true
         } else {
-          alert("fail: " + res.data.msg);
+          this.mdShow = true
         }
       })
+    },
+    mdStatus () {
+      this.mdShow = false
+      this.mdShowCart = false
     }
   }
 }

@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import VueLazyLoad from 'vue-lazyload'
 import infiniteScroll from 'vue-infinite-scroll'
+// 将样式文件导入到这里可以全局都使用到
 import '@/assets/css/base.css'
 import '@/assets/css/product.css'
 import '@/assets/css/checkout.css'

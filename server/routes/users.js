@@ -47,6 +47,7 @@ router.post("/login", function (req,res,next) {
 
 // 登出接口
 // 因为没有去做数据库的交互，所以相对简单
+// 只需将cookie值置空就可以脱离登录状态了，然后将信息传至前台
 router.post("/logout", function (req,res,next) {
   res.cookie("userId", "",{
     path: "/",
@@ -61,6 +62,7 @@ router.post("/logout", function (req,res,next) {
 
 // 检验当前用户信息
 // 用于刷新时保存信息
+// 并持续置于已登录状态（其实浏览器会自己保存cookies）
 router.get('/checkLogin', function (req,res,next) {
   if (req.cookies.userId) {
     res.json({
@@ -76,4 +78,27 @@ router.get('/checkLogin', function (req,res,next) {
     })
   }
 })
+
+// 查询当前用户的购物车
+router.get('/cartList', function (req,res,next) {
+  var userId = req.cookies.userId;
+  User.findOne({userId:userId}, function (err,doc) {
+    if (err) {
+      res.json ({
+        status: "1",
+        msg: err.message,
+        result:''
+      })
+    } else {
+      if (doc) {
+        res.json ({
+          status: '0',
+          msg: '',
+          result: doc.cartList
+        })
+      }
+    }
+  })
+})
+
 module.exports = router;

@@ -46,7 +46,7 @@
                   </li>
                   <li class="regi_form_input noMargin">
                     <i class="icon IconPwd"></i>
-                    <input type="password" tabindex="2" name="password" v-model="userPwd" placeholder="Password" class="regi_login_input regi_login_input_left login-input-no input_text">
+                    <input type="password" tabindex="2" name="password" v-model="userPwd" placeholder="Password" class="regi_login_input regi_login_input_left login-input-no input_text" @keyup.enter="login">
                   </li>
                 </ul>
               </div>
@@ -72,19 +72,22 @@
         userPwd:'',
         errorTip: false,
         loginModalFlag: false,
-        nickName: ''
+        nickName: '' //利用其存不存在值来控制登录的状态
       }
     },
     methods: {
+      // 登录
       login () {
         if (!this.userName || !this.userPwd) {
           this.errorTip = true
           return
         }
+        // 传入用户名和密码
         axios.post("/users/login", {
           userName: this.userName,
           userPwd: this.userPwd
         }).then((response)=>{
+          // 后端校验后传来状态
           let res = response.data
           if (res.status == "0") {
             this.errorTip = false
@@ -95,15 +98,17 @@
           }
         })
       },
+      // 登出
       logOut() {
         axios.post("/users/logout").then((response)=>{
           let res = response.data
           if (res.status == "0") {
+            // 将值置空
             this.nickName = ''
           }
         })
       },
-      // 刷新是保存登录信息
+      // 刷新时保存登录信息
       checkLogin () {
         axios.get("/users/checkLogin").then((response)=>{
           let res = response.data;
@@ -113,6 +118,7 @@
         })
       }
     },
+    // 每次刷新都会触发
     mounted () {
       this.checkLogin()
     }
