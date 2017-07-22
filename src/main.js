@@ -10,9 +10,13 @@ import '@/assets/css/base.css'
 import '@/assets/css/product.css'
 import '@/assets/css/checkout.css'
 import '@/assets/css/login.css'
+// import {currency} from '@/util/currency'
 
 Vue.config.productionTip = false
 Vue.use(infiniteScroll)
+
+// 全局过滤器的定义以及使用方法
+// Vue.filter("currency", currency)
 
 // 图片懒加载实现，为其设置了路径
 Vue.use(VueLazyLoad, {

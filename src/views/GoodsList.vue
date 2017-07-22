@@ -217,6 +217,7 @@ export default {
         }
       })
     },
+    // 模态框的关闭
     mdStatus () {
       this.mdShow = false
       this.mdShowCart = false
