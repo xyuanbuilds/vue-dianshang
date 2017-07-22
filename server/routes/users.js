@@ -187,11 +187,32 @@ router.post('/editCheckAll', function (req,res,next) {
           })
         } else {
           res.json({
-            status: '1',
+            status: '0',
             msg: '',
             result:'suc'
           })
         }
+      })
+    }
+  })
+})
+
+//查询用户地址接口
+router.get('/addressList', function (req,res,next) {
+  var userId = req.cookies.userId
+
+  User.findOne({"userId":userId}, function (err,doc) {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      })
+    } else {
+      res.json({
+        status: '0',
+        msg: '',
+        result: doc.addressList
       })
     }
   })
