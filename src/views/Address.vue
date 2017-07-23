@@ -60,21 +60,21 @@
         <div class="addr-list-wrap">
           <div class="addr-list">
             <ul>
-              <li v-for="(item,index) in addressListFilter" :class="{'check': checkIndex == index}" @click="checkIndex = index">
+              <li v-for="(item,index) in addressListFilter" :class="{'check': checkIndex == index}" @click="checkIndex = index; selected = item.addressId">
                 <dl>
                   <dt>{{item.userName}}</dt>
                   <dd class="address">{{item.streetName}}</dd>
                   <dd class="tel">{{item.tell}}</dd>
                 </dl>
                 <div class="addr-opration addr-del">
-                  <a href="javascript:;" class="addr-del-btn">
+                  <a href="javascript:;" class="addr-del-btn" @click="delAddressConfirm(item.addressId)">
                     <svg class="icon icon-del"><use xlink:href="#icon-del"></use></svg>
                   </a>
                 </div>
                 <div class="addr-opration addr-set-default">
-                  <a href="javascript:;" class="addr-set-default-btn"><i>Set default</i></a>
+                  <a href="javascript:;" class="addr-set-default-btn" v-if="!item.isDefault" @click="setDefault(item.addressId)"><i>Set default</i></a>
                 </div>
-                <div class="addr-opration addr-default">Default address</div>
+                <div class="addr-opration addr-default" v-if="item.isDefault">Default address</div>
               </li>
               <li class="addr-new">
                 <div class="add-new-inner">
@@ -119,11 +119,18 @@
           </div>
         </div>
         <div class="next-btn-wrap">
-          <a class="btn btn--m btn--red">Next</a>
+          <router-link class="btn btn--m btn--red" :to="{path:'orderConfirm', query: {'addressId': selected} }">Next</router-link>
         </div>
       </div>
     </div>
   </div>
+  <modal :mdget="mdShow" @checkMd="mdStatus">
+    <p slot="message">你是否确认删除此地址</p>
+    <div slot="btn-group">
+      <a href="javascript:;" class="btn btn--m" @click="delAddress">确认</a>
+      <a href="javascript:;" class="btn btn--m" @click="mdShow = false">取消</a>
+    </div>
+  </modal>
   <nav-footer></nav-footer>
 </div>
 </template>
@@ -148,7 +155,10 @@ export default {
     return {
       addressList: [],
       limit: 3,
-      checkIndex: 0
+      checkIndex: 0,
+      mdShow: false,
+      addressId: '',
+      selected: '' //标志选中的地址
     }
   },
   computed: {
@@ -163,13 +173,48 @@ export default {
         this.addressList = res.result
       })
     },
+    // 地址栏打开关闭
     expand () {
       if (this.limit == 3) {
         this.limit = this.addressList.length
       } else {
         this.limit = 3
       }
-    }
+    },
+    // 设置默认地址
+    setDefault (addressId) {
+      axios.post("/users/setDefault", {
+        addressId: addressId
+      }).then((response)=>{
+        let res = response.data
+        if (res.status == '0') {
+          console.log("set default")
+          this.init()
+        }
+      })
+    },
+    // 控制模态框的关闭
+    mdStatus () {
+      this.mdShow = false
+    },
+    // 先弹出模态框准备
+    delAddressConfirm (addressId) {
+      this.mdShow = true
+      this.addressId = addressId
+    },
+    // 删除购物车数据准备，关闭模态框
+    delAddress () {
+      axios.post("/users/delAddress", {
+        addressId: this.addressId
+      }).then((response)=>{
+        let res = response.data
+        if (res.status == '0') {
+          console.log('dec suc')
+          this.init()
+          this.mdShow = false
+        }
+      })
+    },
   },
   mounted () {
     this.init()
