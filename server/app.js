@@ -12,6 +12,7 @@ var goods = require('./routes/goods');
 
 var app = express();
 
+// 修改读取html
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.engine('.html', ejs.__express)
