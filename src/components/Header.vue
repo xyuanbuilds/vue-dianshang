@@ -20,7 +20,7 @@
           <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag = true" v-if="!nickName">Login</a>
           <a href="javascript:void(0)" class="navbar-link" v-if="nickName" @click="logOut">Logout</a>
           <div class="navbar-cart-container">
-            <span class="navbar-cart-count"></span>
+            <span class="navbar-cart-count">{{cartCount}}</span>
             <a class="navbar-link navbar-cart-link" href="/#/cart">
               <svg class="navbar-cart-logo">
                 <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
@@ -72,7 +72,14 @@
         userPwd:'',
         errorTip: false,
         loginModalFlag: false,
-        nickName: '' //利用其存不存在值来控制登录的状态
+      }
+    },
+    computed: {
+      nickName () {
+        return this.$store.state.nickName //利用其存不存在值来控制登录的状态
+      },
+      cartCount () {
+        return this.$store.state.cartCount
       }
     },
     methods: {
@@ -92,7 +99,9 @@
           if (res.status == "0") {
             this.errorTip = false
             this.loginModalFlag = false
-            this.nickName = res.result.userName
+            // this.nickName = res.result.userName
+            this.$store.commit('updateUserInfo', res.result.userName)
+            this.getCartCount() //初始化购物车数量
           } else {
             this.errorTip = true
           }
@@ -104,7 +113,7 @@
           let res = response.data
           if (res.status == "0") {
             // 将值置空
-            this.nickName = ''
+            this.$store.commit('updateUserInfo', '')
           }
         })
       },
@@ -113,8 +122,20 @@
         axios.get("/users/checkLogin").then((response)=>{
           let res = response.data;
           if (res.status == '0') {
-            this.nickName = res.result
+            this.$store.commit('updateUserInfo', res.result) //将用户名提交到vuex中，这样整个项目都可以访问到
+            this.getCartCount() //初始化购物车数量
+            this.loginModalFlag = false
+          } else {
+            if (this.$route.path != '/goods') {
+              this.$route.push('/goods')
+            }
           }
+        })
+      },
+      getCartCount () {
+        axios.get("/users/getCartCount").then((response)=>{
+          let res = response.data
+          this.$store.commit("initCartCount", res.result)
         })
       }
     },

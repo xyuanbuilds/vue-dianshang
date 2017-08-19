@@ -94,7 +94,7 @@
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
-                    <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item.productId)">
+                    <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item)">
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
                       </svg>
@@ -153,7 +153,7 @@ export default {
   data () {
     return {
       cartList: [],
-      productId:'',
+      delItem:'',
       mdShowCart: false,
     }
   },
@@ -201,19 +201,20 @@ export default {
       this.mdShowCart = false
     },
     // 删除购物车数据准备，弹出模态框
-    delCartConfirm (productId) {
+    delCartConfirm (item) {
       this.mdShowCart = true
-      this.productId = productId
+      this.delItem = item
     },
     //确认删除，写入数据库
     delCart () {
       axios.post("/users/cartDel", {
-        productId: this.productId
+        productId: this.delItem.productId
       }).then((response)=>{
         let res = response.data
         if (res.status == '0'){
           this.mdStatus()
           this.init()
+          this.$store.commit("updateCartCount", -this.delItem.productNum)
         } else {
           alert(`删除失败：$(res.msg)`)
         }
@@ -223,11 +224,13 @@ export default {
     editCart (flag, item) {
       if (flag == 'add') {
         item.productNum ++
+        this.$store.commit("updateCartCount", 1) //应该写到请求完成后再做定义，这里偷了懒
       } else if (flag == 'minu') {
         if (item.productNum <= 1) {
           return
         }
         item.productNum --
+        this.$store.commit("updateCartCount", -1)
       } else {
         // 如果是1给0，其他给1
         item.checked = item.checked == 1?0:1
