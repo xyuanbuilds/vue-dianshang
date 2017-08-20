@@ -65,6 +65,7 @@
 <script type="text/javascript">
   import './../assets/css/login.css'
   import axios from 'axios'
+  import { mapState } from 'vuex'
   export default {
     data () {
       return {
@@ -75,12 +76,13 @@
       }
     },
     computed: {
-      nickName () {
-        return this.$store.state.nickName //利用其存不存在值来控制登录的状态
-      },
-      cartCount () {
-        return this.$store.state.cartCount
-      }
+      // nickName () {
+      //   return this.$store.state.nickName //利用其存不存在值来控制登录的状态
+      // },
+      // cartCount () {
+      //   return this.$store.state.cartCount
+      // }
+      ...mapState ({'nickName', 'cartCount'}) //利用vuex的mapState函数进行简写，运用了es6的一个对象展开运算符
     },
     methods: {
       // 登录
